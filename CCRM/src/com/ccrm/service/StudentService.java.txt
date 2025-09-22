@@ -1,0 +1,42 @@
+package com.ccrm.service;
+
+import com.ccrm.model.Student;
+import com.ccrm.exception.StudentNotFoundException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+public class StudentService {
+    // 1. Singleton Pattern Implementation
+    private static StudentService instance;
+    private final Map<String, Student> students = new HashMap<>();
+
+    private StudentService() {}
+
+    public static synchronized StudentService getInstance() {
+        if (instance == null) {
+            instance = new StudentService();
+        }
+        return instance;
+    }
+
+    public void addStudent(Student student) {
+        students.put(student.getRegNo(), student);
+    }
+
+    public Student getStudentByRegNo(String regNo) throws StudentNotFoundException {
+        return Optional.ofNullable(students.get(regNo))
+                .orElseThrow(() -> new StudentNotFoundException("Student with Registration No " + regNo + " not found."));
+    }
+
+    public Collection<Student> getAllStudents() {
+        return students.values();
+    }
+    
+    public void updateStudent(String regNo, String newName, String newEmail) throws StudentNotFoundException {
+        // This is a placeholder for a real update logic.
+        // In a real app, you'd update specific fields.
+        System.out.println("Update functionality is not fully implemented in this example.");
+    }
+}

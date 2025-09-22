@@ -1,0 +1,89 @@
+package com.ccrm.service;
+
+import com.ccrm.exception.CourseNotFoundException;
+import com.ccrm.exception.StudentNotFoundException;
+import com.ccrm.model.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class EnrollmentService {
+    private static EnrollmentService instance;
+    private final List<Enrollment> enrollments = new ArrayList<>();
+    private final StudentService studentService = StudentService.getInstance();
+    private final CourseService courseService = CourseService.getInstance();
+
+    private EnrollmentService() {}
+
+    public static synchronized EnrollmentService getInstance() {
+        if (instance == null) {
+            instance = new EnrollmentService();
+        }
+        return instance;
+    }
+
+    public void enrollStudent(String regNo, String courseCode) throws StudentNotFoundException, CourseNotFoundException {
+        Student student = studentService.getStudentByRegNo(regNo);
+        Course course = courseService.getCourseByCode(courseCode);
+
+        // Business Rule: Check if already enrolled
+        boolean alreadyEnrolled = enrollments.stream()
+            .anyMatch(e -> e.getStudentId().equals(student.getId()) && e.getCourseCode().equals(courseCode));
+            
+        if (alreadyEnrolled) {
+            System.out.println("Student is already enrolled in this course.");
+            return;
+        }
+
+        enrollments.add(new Enrollment(student.getId(), course.getCode()));
+        student.getEnrolledCourseCodes().add(course.getCode());
+        System.out.println("Enrollment successful!");
+    }
+    
+    public void assignGrade(String regNo, String courseCode, Grade grade) throws StudentNotFoundException, CourseNotFoundException {
+        Student student = studentService.getStudentByRegNo(regNo);
+        
+        enrollments.stream()
+            .filter(e -> e.getStudentId().equals(student.getId()) && e.getCourseCode().equalsIgnoreCase(courseCode))
+            .findFirst()
+            .ifPresentOrElse(
+                enrollment -> {
+                    enrollment.setGrade(grade);
+                    System.out.println("Grade assigned successfully.");
+                },
+                () -> System.out.println("Error: Enrollment record not found.")
+            );
+    }
+    
+    public void printTranscript(String regNo) throws StudentNotFoundException, CourseNotFoundException {
+        Student student = studentService.getStudentByRegNo(regNo);
+        System.out.println("\n--- Transcript for " + student.getFullName() + " ---");
+        System.out.println(student.getProfile());
+        System.out.println("\n--- Courses & Grades ---");
+
+        List<Enrollment> studentEnrollments = enrollments.stream()
+                .filter(e -> e.getStudentId().equals(student.getId()))
+                .collect(Collectors.toList());
+                
+        if (studentEnrollments.isEmpty()) {
+            System.out.println("No courses enrolled.");
+            return;
+        }
+
+        double totalPoints = 0;
+        int totalCredits = 0;
+
+        for (Enrollment enrollment : studentEnrollments) {
+            Course course = courseService.getCourseByCode(enrollment.getCourseCode());
+            System.out.printf("  - %s (%s): %s\n", course.getTitle(), course.getCode(), enrollment.getGrade());
+            if(enrollment.getGrade().getGradePoint() > 0) {
+                totalPoints += enrollment.getGrade().getGradePoint() * course.getCredits();
+                totalCredits += course.getCredits();
+            }
+        }
+
+        double gpa = (totalCredits == 0) ? 0 : totalPoints / totalCredits;
+        System.out.printf("\nCumulative GPA: %.2f\n", gpa);
+        System.out.println("------------------------------------");
+    }
+}

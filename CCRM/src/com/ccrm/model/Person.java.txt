@@ -1,0 +1,26 @@
+package com.ccrm.model;
+
+import java.time.LocalDate;
+import java.util.UUID;
+
+public abstract class Person {
+    protected final String id;
+    protected String fullName;
+    protected String email;
+    protected final LocalDate creationDate;
+
+    public Person(String fullName, String email) {
+        this.id = UUID.randomUUID().toString();
+        this.fullName = fullName;
+        this.email = email;
+        this.creationDate = LocalDate.now();
+    }
+
+    // Getters
+    public String getId() { return id; }
+    public String getFullName() { return fullName; }
+    public String getEmail() { return email; }
+
+    // Abstract method to be implemented by subclasses
+    public abstract String getProfile();
+}

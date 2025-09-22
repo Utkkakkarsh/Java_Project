@@ -1,0 +1,116 @@
+package com.ccrm.util;
+
+import com.ccrm.model.Course;
+import com.ccrm.model.Semester;
+import com.ccrm.model.Student;
+import com.ccrm.service.CourseService;
+import com.ccrm.service.StudentService;
+
+import java.io.IOException;
+import java.nio.file.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class FileUtility {
+    private static final Path DATA_DIR = Paths.get("data");
+
+    public static void importData() {
+        System.out.println("Importing data from files...");
+        importStudents(DATA_DIR.resolve("students.csv"));
+        importCourses(DATA_DIR.resolve("courses.csv"));
+    }
+
+    private static void importStudents(Path path) {
+        StudentService studentService = StudentService.getInstance();
+        try (Stream<String> lines = Files.lines(path)) {
+            lines.skip(1) // Skip header
+                 .map(line -> line.split(","))
+                 .forEach(data -> {
+                    Student student = new Student.Builder(data[0], data[1]).email(data[2]).build();
+                    studentService.addStudent(student);
+                 });
+            System.out.println("Students imported successfully.");
+        } catch (IOException e) {
+            System.err.println("Could not import students: " + e.getMessage());
+        }
+    }
+
+    private static void importCourses(Path path) {
+       // Similar implementation for courses...
+    }
+
+    public static void exportData() {
+        System.out.println("Exporting data to files...");
+        try {
+            Files.createDirectories(DATA_DIR);
+            exportStudents(DATA_DIR.resolve("students_export.csv"));
+            exportCourses(DATA_DIR.resolve("courses_export.csv"));
+        } catch (IOException e) {
+            System.err.println("Error creating data directory: " + e.getMessage());
+        }
+    }
+
+    private static void exportStudents(Path path) {
+        StudentService studentService = StudentService.getInstance();
+        List<String> lines = studentService.getAllStudents().stream()
+            .map(s -> String.join(",", s.getRegNo(), s.getFullName(), s.getEmail()))
+            .collect(Collectors.toList());
+        lines.add(0, "regNo,fullName,email"); // Header
+        try {
+            Files.write(path, lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            System.out.println("Students exported to " + path);
+        } catch (IOException e) {
+            System.err.println("Could not export students: " + e.getMessage());
+        }
+    }
+    
+    private static void exportCourses(Path path) {
+        // Similar implementation for courses...
+    }
+
+    public static void backupData() {
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        Path backupDir = Paths.get("backup", "backup_" + timestamp);
+        try {
+            Files.createDirectories(backupDir);
+            try (Stream<Path> stream = Files.walk(DATA_DIR, 1)) {
+                stream.filter(path -> !Files.isDirectory(path))
+                      .forEach(path -> {
+                          try {
+                              Files.copy(path, backupDir.resolve(path.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+                          } catch (IOException e) {
+                              System.err.println("Failed to backup file " + path + ": " + e.getMessage());
+                          }
+                      });
+                System.out.println("Data backed up to " + backupDir.toAbsolutePath());
+                
+                // Call recursive method
+                long totalSize = calculateDirectorySize(backupDir);
+                System.out.printf("Total size of backup directory: %d bytes\n", totalSize);
+
+            }
+        } catch (IOException e) {
+            System.err.println("Could not create backup: " + e.getMessage());
+        }
+    }
+
+    // --- Recursive Method Example ---
+    public static long calculateDirectorySize(Path path) {
+        long size = 0;
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+            for (Path entry : stream) {
+                if (Files.isDirectory(entry)) {
+                    size += calculateDirectorySize(entry); // Recursive call
+                } else {
+                    size += Files.size(entry);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Could not calculate size for " + path + ": " + e.getMessage());
+        }
+        return size;
+    }
+}

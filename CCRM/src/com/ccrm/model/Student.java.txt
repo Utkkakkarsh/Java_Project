@@ -1,0 +1,61 @@
+package com.ccrm.model;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Student extends Person {
+    private final String regNo;
+    private boolean active;
+    private List<String> enrolledCourseCodes;
+
+    // Private constructor to enforce builder usage
+    private Student(Builder builder) {
+        super(builder.fullName, builder.email);
+        this.regNo = builder.regNo;
+        this.active = true;
+        this.enrolledCourseCodes = new ArrayList<>();
+    }
+
+    // Getters and Setters
+    public String getRegNo() { return regNo; }
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
+    public List<String> getEnrolledCourseCodes() { return enrolledCourseCodes; }
+
+    @Override
+    public String getProfile() {
+        return String.format(
+            "Student ID: %s\nRegistration No: %s\nName: %s\nEmail: %s\nStatus: %s\nEnrolled Since: %s",
+            id, regNo, fullName, email, active ? "Active" : "Inactive",
+            creationDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
+        );
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s (%s)", fullName, regNo);
+    }
+    
+    // --- Static Nested Builder Class ---
+    public static class Builder {
+        private final String regNo; // Required
+        private String fullName;  // Required
+        private String email;
+
+        public Builder(String regNo, String fullName) {
+            this.regNo = regNo;
+            this.fullName = fullName;
+        }
+
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Student build() {
+            return new Student(this);
+        }
+    }
+}

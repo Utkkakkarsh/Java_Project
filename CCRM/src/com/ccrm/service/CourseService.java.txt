@@ -1,0 +1,46 @@
+package com.ccrm.service;
+
+import com.ccrm.model.Course;
+import com.ccrm.model.Semester;
+import com.ccrm.exception.CourseNotFoundException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+public class CourseService {
+    private static CourseService instance;
+    private final Map<String, Course> courses = new HashMap<>();
+
+    private CourseService() {}
+
+    public static synchronized CourseService getInstance() {
+        if (instance == null) {
+            instance = new CourseService();
+        }
+        return instance;
+    }
+
+    public void addCourse(Course course) {
+        courses.put(course.getCode(), course);
+    }
+
+    public Course getCourseByCode(String code) throws CourseNotFoundException {
+        return Optional.ofNullable(courses.get(code))
+                .orElseThrow(() -> new CourseNotFoundException("Course with code " + code + " not found."));
+    }
+
+    public Collection<Course> getAllCourses() {
+        return courses.values();
+    }
+
+    // Stream API and Lambda example
+    public List<Course> filterCourses(String department, Semester semester) {
+        return courses.values().stream()
+                .filter(c -> department == null || c.getDepartment().equalsIgnoreCase(department))
+                .filter(c -> semester == null || c.getSemester() == semester)
+                .collect(Collectors.toList());
+    }
+}

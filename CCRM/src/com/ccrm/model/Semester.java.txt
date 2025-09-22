@@ -1,0 +1,5 @@
+package com.ccrm.model;
+
+public enum Semester {
+    SPRING, SUMMER, FALL, WINTER
+}

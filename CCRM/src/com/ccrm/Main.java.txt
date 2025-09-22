@@ -1,0 +1,10 @@
+package com.ccrm;
+
+import com.ccrm.cli.CliHandler;
+
+public class Main {
+    public static void main(String[] args) {
+        CliHandler cli = new CliHandler();
+        cli.start();
+    }
+}
