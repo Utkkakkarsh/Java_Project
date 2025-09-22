@@ -1,25 +1,24 @@
-Online Voting System-
-A simple, graphical user interface (GUI) based voting application built using Java Swing. This project provides a basic framework for an electronic voting system where registered voters can cast their vote for a political party, and the results can be displayed in real-time.
+Campus Course & Records Manager (CCRM)
+1. Project Overview
+The
+Campus Course & Records Manager (CCRM) is a console-based Java application designed to manage student and course records for an educational institute. It's a Java SE project that demonstrates core Java principles, including Object-Oriented Programming, modern file I/O with NIO.2, the Streams API, and various design patterns. 
+Key Features
 
-📜 Description
-This application presents a window where a user can enter their Voter ID, select a party from a list of options, and cast their vote. It includes validation to ensure that only registered voters can participate and that each person can only vote once. It also provides a feature to display the current vote tally for all parties.
+Student Management: Add, list, update, and deactivate student records. Enroll students in courses and generate academic transcripts. 
+Course Management: Create and manage courses, assign instructors, and allow for searching and filtering based on various criteria. 
+Enrollment & Grading: Handle student enrollment/unenrollment with business logic and manage academic grades and GPA calculations. 
+File Operations: Import and export records from/to text files and perform backups of application data into timestamped folders. 
 
-✨ Features
-Voter Authentication: Checks if the entered Voter ID is valid and registered in the system.
 
-Prevent Multiple Votes: Ensures that a voter can cast their ballot only once.
+2. Java Platform & Architecture Evolution of Java
+A brief timeline of key milestones in the evolution of Java: 
 
-Simple Interface: Easy-to-use GUI built with Java Swing components.
+1995: Java 1.0 is publicly released with the motto "Write once, run anywhere."
 
-Real-time Results: A "Show Results" button to display the current vote count for each party at any time.
+2004: Java 5 (J2SE 5.0) is released, introducing major features like generics, annotations, and enums.
 
-Pre-registered Voters: The system is initialized with a list of 1000 registered voters (from "V1" to "V1000").
+2014: Java 8 is released, a pivotal update that introduced Lambda Expressions, the Stream API, and a new Date/Time API.
 
-🛠️ Built With
-Java: Core programming language.
+2018: Java 11 is released as the second Long-Term Support (LTS) version after Java 8.
 
-Java Swing: For creating the graphical user interface.
-
-Java AWT: For event handling (ActionListener).
-
-Java Collections: HashSet for efficient voter lookup and HashMap for storing vote counts.
+2021: Java 17 becomes the next LTS release, bringing features like sealed classes and pattern matching for instanceof.
